@@ -29,7 +29,18 @@ namespace DbUp.Engine
         /// </summary>
         public bool IsUpgradeRequired(string databaseVersionHash, string workingDir)
         {
-            return GetScriptsToExecuteInsideOperation(databaseVersionHash,workingDir).Count() != 0;
+            return GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).Count() != 0;
+        }
+
+        /// <summary>
+        /// Return a list of scripts that would be ran if this was not a dry run
+        /// </summary>
+        /// <param name="databaseVersionHash">The most recent database version</param>
+        /// <param name="workingDir">The local clone of the migrations repository</param>
+        /// <returns>List of all the files that would be executed on the target database</returns>
+        public string DryRun(string databaseVersionHash, string workingDir)
+        {
+            return GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ToString();
         }
 
         /// <summary>

@@ -13,9 +13,9 @@ namespace DbUp.Console
             var directory = "";
             var username = "";
             var password = "";
-            bool mark = false;
             var connectionString = "";
             var workingDir = "";
+            var dryrun = false;
 
             bool show_help = false;
 
@@ -27,8 +27,7 @@ namespace DbUp.Console
                 { "p|password=", "Database password", p => password = p},
                 { "cs|connectionString=", "Full connection string", cs => connectionString = cs},
                 { "h|help",  "show this message and exit", v => show_help = v != null },
-                {"mark", "Mark scripts as executed but take no action", m => mark = true},
-                {"w|workingPath", "Working path for existing Git repo", w => workingDir = "."},
+                { "dr|dryrun",  "Return a list of files that would have been executed", dr => dryrun = dr != null },
             };
 
             optionSet.Parse(args);
@@ -61,6 +60,12 @@ namespace DbUp.Console
                 .LogToConsole()
                 .WithScriptsFromFileSystem(directory)
                 .Build();
+
+            if (dryrun)
+            {
+                dbup.DryRun(databaseVersion.Version, workingDir);
+                return;
+            }
 
             if (dbup.IsUpgradeRequired(databaseVersion.Version, workingDir))
             {
