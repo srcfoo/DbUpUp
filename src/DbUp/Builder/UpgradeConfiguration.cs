@@ -75,7 +75,7 @@ namespace DbUp.Builder
             if (Log == null) throw new ArgumentException("A log is required to build a database upgrader. Please use one of the logging extension methods");
             if (ScriptExecutor == null) throw new ArgumentException("A ScriptExecutor is required");
             if (Journal == null) throw new ArgumentException("A journal is required. Please use one of the Journal extension methods before calling Build()");
-            if (ScriptProviders.Count == 0) throw new ArgumentException("No script providers were added. Please use one of the WithScripts extension methods before calling Build()");
+            //if (ScriptProviders.Count == 0) throw new ArgumentException("No script providers were added. Please use one of the WithScripts extension methods before calling Build()");
             if (ConnectionManager == null) throw new ArgumentException("The ConnectionManager is null. What do you expect to upgrade?");
         }
 

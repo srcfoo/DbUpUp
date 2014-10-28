@@ -31,8 +31,8 @@ namespace DbUp.Engine
             Process git = new Process();
             ProcessStartInfo gitStartInfo = new ProcessStartInfo();
             gitStartInfo.FileName = this.gitExe;
-            gitStartInfo.Arguments = "/C " + command;
-            gitStartInfo.UseShellExecute = true;
+            gitStartInfo.Arguments = command;
+            gitStartInfo.UseShellExecute = false;
             gitStartInfo.RedirectStandardOutput = true;
             gitStartInfo.WorkingDirectory = this.workingDir;
             git.StartInfo = gitStartInfo;

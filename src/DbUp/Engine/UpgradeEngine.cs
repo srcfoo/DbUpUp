@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using DbUp.Builder;
-using DbUp.Engine.Git;
 using System.IO;
 using System.Diagnostics;
 
@@ -117,6 +116,7 @@ namespace DbUp.Engine
         /// Returns a list of scripts that will be executed when the upgrade is performed
         /// </summary>
         /// <returns>The scripts to be executed</returns>
+        /*
         public List<SqlScript> GetScriptsToExecute()
         {
             using (configuration.ConnectionManager.OperationStarting(configuration.Log, new List<SqlScript>()))
@@ -124,7 +124,7 @@ namespace DbUp.Engine
                 return GetScriptsToExecuteInsideOperation();
             }
         }
-
+        */
         private List<SqlScript> GetScriptsToExecuteInsideOperation(string workingDir, string databaseVersionHash, string repoVersionHash = "HEAD")
         {
             // Git repo must already be cloned into workspace
