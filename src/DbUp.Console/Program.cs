@@ -26,6 +26,7 @@ namespace DbUp.Console
                 { "u|user=", "Database username", u => username = u},
                 { "p|password=", "Database password", p => password = p},
                 { "cs|connectionString=", "Full connection string", cs => connectionString = cs},
+                { "w|workingDir=", "Working directory for existing Git repo", w => workingDir = @w },
                 { "h|help",  "show this message and exit", v => show_help = v != null },
                 { "dr|dryrun",  "Return a list of files that would have been executed", dr => dryrun = dr != null },
             };
@@ -48,12 +49,11 @@ namespace DbUp.Console
             }
 
             var databaseVersion = new Engine.DatabaseVersion(connectionString);
-            System.Console.WriteLine("connection: " + connectionString);
-            System.Console.WriteLine("DB VERSION: " + databaseVersion.Version);
-            System.Console.ReadKey();
-            
-            System.Console.WriteLine("DB VERSION: " + databaseVersion.Version);
-            System.Console.ReadKey();
+            System.Console.WriteLine("Connection: " + connectionString);
+            System.Console.WriteLine("Working Directory: " + workingDir);
+            System.Console.WriteLine("DB Version: " + databaseVersion.Version);
+            var myGit = new Engine.Git(workingDir);
+            System.Console.WriteLine("HEAD Version: " + myGit.HeadVersion());
 
             var dbup = DeployChanges.To
                 .SqlDatabase(connectionString)
