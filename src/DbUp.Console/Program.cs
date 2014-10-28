@@ -15,6 +15,7 @@ namespace DbUp.Console
             var password = "";
             bool mark = false;
             var connectionString = "";
+            var workingDir = "";
 
             bool show_help = false;
 
@@ -27,13 +28,13 @@ namespace DbUp.Console
                 { "cs|connectionString=", "Full connection string", cs => connectionString = cs},
                 { "h|help",  "show this message and exit", v => show_help = v != null },
                 {"mark", "Mark scripts as executed but take no action", m => mark = true},
+                {"w|workingPath", "Working path for existing Git repo", w => workingDir = "."},
             };
 
             optionSet.Parse(args);
 
             if (args.Length == 0)
                 show_help = true;
-
 
             if (show_help)
             {
@@ -47,19 +48,23 @@ namespace DbUp.Console
                 connectionString = BuildConnectionString(server, database, username, password);
             }
 
+            var databaseVersion = new Engine.DatabaseVersion(connectionString);
+            System.Console.WriteLine("connection: " + connectionString);
+            System.Console.WriteLine("DB VERSION: " + databaseVersion.Version);
+            System.Console.ReadKey();
+            
+            System.Console.WriteLine("DB VERSION: " + databaseVersion.Version);
+            System.Console.ReadKey();
+
             var dbup = DeployChanges.To
                 .SqlDatabase(connectionString)
                 .LogToConsole()
                 .WithScriptsFromFileSystem(directory)
                 .Build();
 
-            if (!mark)
+            if (dbup.IsUpgradeRequired(databaseVersion.Version, workingDir))
             {
-                dbup.PerformUpgrade();
-            }
-            else
-            {
-                dbup.MarkAsExecuted();
+                dbup.PerformUpgrade(databaseVersion.Version, workingDir);
             }
         }
 

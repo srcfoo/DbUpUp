@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using DbUp.Builder;
+using DbUp.Engine.Git;
+using System.IO;
+using System.Diagnostics;
 
 namespace DbUp.Engine
 {
@@ -24,9 +27,9 @@ namespace DbUp.Engine
         /// <summary>
         /// Determines whether the database is out of date and can be upgraded.
         /// </summary>
-        public bool IsUpgradeRequired()
+        public bool IsUpgradeRequired(string databaseVersionHash, string workingDir)
         {
-            return GetScriptsToExecute().Count() != 0;
+            return GetScriptsToExecuteInsideOperation(databaseVersionHash,workingDir).Count() != 0;
         }
 
         /// <summary>
@@ -59,7 +62,7 @@ namespace DbUp.Engine
         /// <summary>
         /// Performs the database upgrade.
         /// </summary>
-        public DatabaseUpgradeResult PerformUpgrade()
+        public DatabaseUpgradeResult PerformUpgrade(string databaseVersionHash, string workingDir)
         {
             var executed = new List<SqlScript>();
             try
@@ -68,7 +71,7 @@ namespace DbUp.Engine
                 {
                     configuration.Log.WriteInformation("Beginning database upgrade");
 
-                    var scriptsToExecute = GetScriptsToExecuteInsideOperation();
+                    var scriptsToExecute = GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash);
 
                     if (scriptsToExecute.Count == 0)
                     {
@@ -78,6 +81,7 @@ namespace DbUp.Engine
 
                     configuration.ScriptExecutor.VerifySchema();
 
+                    // TODO: Update to execute one script so the updates can be easily rolled back
                     foreach (var script in scriptsToExecute)
                     {
                         configuration.ScriptExecutor.Execute(script, configuration.Variables);
@@ -110,12 +114,17 @@ namespace DbUp.Engine
             }
         }
 
-        private List<SqlScript> GetScriptsToExecuteInsideOperation()
+        private List<SqlScript> GetScriptsToExecuteInsideOperation(string workingDir, string databaseVersionHash, string repoVersionHash = "HEAD")
         {
-            var allScripts = configuration.ScriptProviders.SelectMany(scriptProvider => scriptProvider.GetScripts(configuration.ConnectionManager));
-            var executedScripts = configuration.Journal.GetExecutedScripts();
-
-            return allScripts.Where(s => !executedScripts.Any(y => y == s.Name)).ToList();
+            // Git repo must already be cloned into workspace
+            try {
+                var git = new Git(workingDir);
+                git.UpdateLocalRepo();               
+                return git.GetMigrationFiles(databaseVersionHash,repoVersionHash).Select(s => SqlScript.FromFile(s)).ToList();
+            } catch (Exception ex) {
+                configuration.Log.WriteError("Git commands failed to run: \r\n{0}", ex.ToString());
+                return new List<SqlScript>();
+            }            
         }
 
         ///<summary>
@@ -123,28 +132,22 @@ namespace DbUp.Engine
         /// Useful for bringing development environments into sync with automated environments
         ///</summary>
         ///<returns></returns>
-        public DatabaseUpgradeResult MarkAsExecuted()
+        public DatabaseUpgradeResult UpdateDatabaseVersion(DatabaseVersion dbVersion, string headHash)
         {
             var marked = new List<SqlScript>();
             using (configuration.ConnectionManager.OperationStarting(configuration.Log, marked))
             {
                 try
                 {
-                    var scriptsToExecute = GetScriptsToExecuteInsideOperation();
+                    //TODO GET hash for HEAD
+                    dbVersion.Version = headHash;
 
-                    foreach (var script in scriptsToExecute)
-                    {
-                        configuration.Journal.StoreExecutedScript(script);
-                        configuration.Log.WriteInformation("Marking script {0} as executed", script.Name);
-                        marked.Add(script);
-                    }
-
-                    configuration.Log.WriteInformation("Script marking successful");
+                    configuration.Log.WriteInformation("Database update successful");
                     return new DatabaseUpgradeResult(marked, true, null);
                 }
                 catch (Exception ex)
                 {
-                    configuration.Log.WriteError("Upgrade failed due to an unexpected exception:\r\n{0}", ex.ToString());
+                    configuration.Log.WriteError("Update failed due to an unexpected exception:\r\n{0}", ex.ToString());
                     return new DatabaseUpgradeResult(marked, false, ex);
                 }
             }
