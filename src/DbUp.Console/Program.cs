@@ -49,11 +49,8 @@ namespace DbUp.Console
             }
 
             var databaseVersion = new Engine.DatabaseVersion(connectionString);
-            System.Console.WriteLine("Connection: " + connectionString);
-            System.Console.WriteLine("Working Directory: " + workingDir);
-            System.Console.WriteLine("DB Version: " + databaseVersion.Version);
-            var myGit = new Engine.Git(workingDir);
-            System.Console.WriteLine("HEAD Version: " + myGit.HeadVersion());
+
+            LogRunDetails(databaseVersion.Version, connectionString, workingDir);
 
             var dbup = DeployChanges.To
                 .SqlDatabase(connectionString)
@@ -90,6 +87,15 @@ namespace DbUp.Console
             }
 
             return conn.ToString();
+        }
+
+        private static void LogRunDetails(string databaseVersion, string connectionString, string workingDir) 
+        {
+            System.Console.WriteLine("Connection: " + connectionString);
+            System.Console.WriteLine("Working Directory: " + workingDir);
+            System.Console.WriteLine("DB Version: " + databaseVersion);
+            var aGit = new Engine.Git(workingDir);
+            System.Console.WriteLine("HEAD Version: " + aGit.HeadVersion());
         }
     }
 }
