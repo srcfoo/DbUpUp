@@ -129,9 +129,9 @@ namespace DbUp.Engine
         {
             // Git repo must already be cloned into workspace
             try {
-                var git = new Git(workingDir);
-                git.UpdateLocalRepo();               
-                return git.GetMigrationFiles(databaseVersionHash,repoVersionHash).Select(s => SqlScript.FromFile(s)).ToList();
+                var aGit = new Git(workingDir);
+                aGit.UpdateLocalRepo();
+                return aGit.GetMigrationFiles(databaseVersionHash,repoVersionHash).Select(s => SqlScript.FromFile(s)).ToList();
             } catch (Exception ex) {
                 configuration.Log.WriteError("Git commands failed to run: \r\n{0}", ex.ToString());
                 return new List<SqlScript>();
@@ -150,10 +150,8 @@ namespace DbUp.Engine
             {
                 try
                 {
-                    //TODO GET hash for HEAD
                     dbVersion.Version = headHash;
-
-                    configuration.Log.WriteInformation("Database update successful");
+                    configuration.Log.WriteInformation("Database updated successfully to version: " + headHash);
                     return new DatabaseUpgradeResult(marked, true, null);
                 }
                 catch (Exception ex)
