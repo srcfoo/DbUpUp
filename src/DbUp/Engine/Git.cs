@@ -70,11 +70,11 @@ namespace DbUp.Engine
         }
 
         /// <summary>
-        /// Pull the remote updates into the local repository
+        /// Pull the remote updates into the local repository (only from origin not upstream)
         /// </summary>
         private void PullChanges()
         {
-            Console.WriteLine(this.ExecuteCommand("pull"));
+            Console.WriteLine(this.ExecuteCommand("pull origin"));
         }
 
         /// <summary>
