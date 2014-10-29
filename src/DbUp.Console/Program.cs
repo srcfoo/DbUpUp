@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Data.SqlClient;
 using NDesk.Options;
 
@@ -16,6 +17,7 @@ namespace DbUp.Console
             var connectionString = "";
             var workingDir = "";
             var dryrun = false;
+            var printAll = false;
 
             bool show_help = false;
 
@@ -29,6 +31,7 @@ namespace DbUp.Console
                 { "w|workingDir=", "Working directory for existing Git repo", w => workingDir = @w },
                 { "h|help",  "show this message and exit", v => show_help = v != null },
                 { "dr|dryrun",  "Return a list of files that would have been executed", dr => dryrun = dr != null },
+                { "pa|printAll", "Print the contents of the files returned in the dry run", pa => printAll = pa != null },
             };
 
             optionSet.Parse(args);
@@ -42,6 +45,8 @@ namespace DbUp.Console
                 return;
 
             }
+
+            Directory.SetCurrentDirectory(workingDir);
 
             if (String.IsNullOrEmpty(connectionString))
             {
@@ -60,7 +65,7 @@ namespace DbUp.Console
 
             if (dryrun)
             {
-                dbup.DryRun(databaseVersion.Version, workingDir);
+                dbup.DryRun(databaseVersion.Version, workingDir, printAll);
                 return;
             }
 

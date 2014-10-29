@@ -1,6 +1,7 @@
 ﻿
 using System.IO;
 using System.Text;
+using System;
 
 namespace DbUp.Engine
 {

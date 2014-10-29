@@ -36,10 +36,16 @@ namespace DbUp.Engine
         /// </summary>
         /// <param name="databaseVersionHash">The most recent database version</param>
         /// <param name="workingDir">The local clone of the migrations repository</param>
-        /// <returns>List of all the files that would be executed on the target database</returns>
-        public string DryRun(string databaseVersionHash, string workingDir)
+        public void DryRun(string databaseVersionHash, string workingDir, bool printAll)
         {
-            return GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ToString();
+            if (printAll)
+            {
+                GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => Console.WriteLine("{0}\r\n{1}\r\n\r\n", i.Name, i.Contents));
+            }
+            else
+            {
+                GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => Console.WriteLine("{0}", i.Name));
+            }
         }
 
         /// <summary>
@@ -131,7 +137,7 @@ namespace DbUp.Engine
             try {
                 var aGit = new Git(workingDir);
                 aGit.UpdateLocalRepo();
-                return aGit.GetMigrationFiles(databaseVersionHash,repoVersionHash).Select(s => SqlScript.FromFile(s)).ToList();
+                return aGit.GetMigrationFiles(databaseVersionHash,repoVersionHash).Where(s => !String.IsNullOrEmpty(s)).Select(s => SqlScript.FromFile(s)).ToList();
             } catch (Exception ex) {
                 configuration.Log.WriteError("Git commands failed to run: \r\n{0}", ex.ToString());
                 return new List<SqlScript>();

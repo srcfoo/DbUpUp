@@ -66,7 +66,7 @@ namespace DbUp.Engine
         /// </summary>
         private void RemoteUpdate()
         {
-            Console.WriteLine(this.ExecuteCommand("remote update"));
+            Console.WriteLine(this.ExecuteCommand("remote update origin"));
         }
 
         /// <summary>
@@ -97,7 +97,8 @@ namespace DbUp.Engine
             // Get all files that have been updated since the database was last updated
             var gitDiff = string.Format("diff --name-only --diff-filter=MACR {0}..{1}", databaseVersionHash, repoVersionHash);
             var cmdOutput = ExecuteCommand(gitDiff);
-            return cmdOutput.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            //return cmdOutput.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            return cmdOutput.Split('\n');
         }
     }
 }
