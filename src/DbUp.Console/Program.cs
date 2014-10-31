@@ -2,6 +2,7 @@
 using System.IO;
 using System.Data.SqlClient;
 using NDesk.Options;
+using DbUp.Engine;
 
 namespace DbUp.Console
 {
@@ -18,6 +19,7 @@ namespace DbUp.Console
             var workingDir = "";
             var dryrun = false;
             var printAll = false;
+            var headVersion = "";
 
             bool show_help = false;
 
@@ -53,9 +55,13 @@ namespace DbUp.Console
                 connectionString = BuildConnectionString(server, database, username, password);
             }
 
-            var databaseVersion = new Engine.DatabaseVersion(connectionString);
+            // Get the version hash of the database and repo@HEAD
+            DatabaseVersion databaseVersion = new DatabaseVersion(connectionString);
+            Git aGit = new Git(workingDir);
+            aGit.UpdateLocalRepo();
+            headVersion = aGit.HeadVersion();
 
-            LogRunDetails(databaseVersion.Version, connectionString, workingDir);
+            LogRunDetails(databaseVersion.Version, headVersion, connectionString, workingDir);
 
             var dbup = DeployChanges.To
                 .SqlDatabase(connectionString)
@@ -65,13 +71,17 @@ namespace DbUp.Console
 
             if (dryrun)
             {
-                dbup.DryRun(databaseVersion.Version, workingDir, printAll);
+                dbup.DryRun(databaseVersion.Version, headVersion, workingDir, printAll);
                 return;
             }
 
             if (dbup.IsUpgradeRequired(databaseVersion.Version, workingDir))
             {
-                dbup.PerformUpgrade(databaseVersion.Version, workingDir);
+                if (dbup.PerformUpgrade(databaseVersion.Version, headVersion, workingDir).Successful)
+                {
+                    // Set the new database version
+                    databaseVersion.Version = headVersion;
+                }
             }
         }
 
@@ -94,13 +104,14 @@ namespace DbUp.Console
             return conn.ToString();
         }
 
-        private static void LogRunDetails(string databaseVersion, string connectionString, string workingDir) 
+        private static void LogRunDetails(string databaseVersion, string headVersion, string connectionString, string workingDir)
         {
+            System.Console.WriteLine("--------------------------------------------------------------------------------");
             System.Console.WriteLine("Connection: " + connectionString);
             System.Console.WriteLine("Working Directory: " + workingDir);
             System.Console.WriteLine("DB Version: " + databaseVersion);
-            var aGit = new Engine.Git(workingDir);
-            System.Console.WriteLine("HEAD Version: " + aGit.HeadVersion());
+            System.Console.WriteLine("HEAD Version: " + headVersion);
+            System.Console.WriteLine("--------------------------------------------------------------------------------");
         }
     }
 }

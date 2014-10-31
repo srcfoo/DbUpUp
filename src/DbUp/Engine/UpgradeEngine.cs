@@ -4,6 +4,7 @@ using System.Linq;
 using DbUp.Builder;
 using System.IO;
 using System.Diagnostics;
+using System.Text;
 
 namespace DbUp.Engine
 {
@@ -36,7 +37,8 @@ namespace DbUp.Engine
         /// </summary>
         /// <param name="databaseVersionHash">The most recent database version</param>
         /// <param name="workingDir">The local clone of the migrations repository</param>
-        public void DryRun(string databaseVersionHash, string workingDir, bool printAll)
+        /// <param name="printAll">Print the contents of each of the scripts that will be run</param>
+        public void DryRun(string databaseVersionHash, string headVersion, string workingDir, bool printAll)
         {
             if (printAll)
             {
@@ -46,6 +48,8 @@ namespace DbUp.Engine
             {
                 GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => Console.WriteLine("{0}", i.Name));
             }
+
+            this.PerformUpgrade(databaseVersionHash, headVersion, workingDir, true);
         }
 
         /// <summary>
@@ -78,7 +82,7 @@ namespace DbUp.Engine
         /// <summary>
         /// Performs the database upgrade.
         /// </summary>
-        public DatabaseUpgradeResult PerformUpgrade(string databaseVersionHash, string workingDir)
+        public DatabaseUpgradeResult PerformUpgrade(string databaseVersionHash, string headVersion, string workingDir, bool dryRun = false)
         {
             var executed = new List<SqlScript>();
             try
@@ -97,14 +101,33 @@ namespace DbUp.Engine
 
                     configuration.ScriptExecutor.VerifySchema();
 
-                    // TODO: Update to execute one script so the updates can be easily rolled back
+                    StringBuilder combinedContents = new StringBuilder();
+                    combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease WITH MARK {0}\r\nGO\r\n",headVersion));
                     foreach (var script in scriptsToExecute)
                     {
-                        configuration.ScriptExecutor.Execute(script, configuration.Variables);
+                        combinedContents.Append(script.Contents);
+                    }
 
-                        configuration.Journal.StoreExecutedScript(script);
+                    // If it's a dry run rollback the transaction at the end so nothing is committed to the database
+                    if (dryRun)
+                    {
+                        combinedContents.AppendLine("\r\nROLLBACK TRANSACTION\r\nGO\r\n");
+                    }
+                    else
+                    {
+                        combinedContents.AppendLine("\r\nCOMMIT TRANSACTION\r\nGO\r\n");
+                    }
 
-                        executed.Add(script);
+                    SqlScript combinedScript = new SqlScript(headVersion + ".sql", combinedContents.ToString());
+                    try
+                    {
+                        configuration.ScriptExecutor.Execute(combinedScript, configuration.Variables);
+                        executed.Add(combinedScript);
+                    }
+                    catch (Exception ex)
+                    {
+                        // I THINK THIS IS REDUNDANT SINCE SQL SERVER MIGHT ROLLBACK ON EXCEPTION BUT NEED TO TEST
+                        configuration.ScriptExecutor.Execute(new SqlScript("rollback.sql", "\r\nROLLBACK TRANSACTION\r\nGO\r\n"), configuration.Variables);
                     }
 
                     configuration.Log.WriteInformation("Upgrade successful");

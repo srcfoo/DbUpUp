@@ -23,6 +23,9 @@ namespace DbUp.Engine
             this.getVersion();
         }
 
+        /// <summary>
+        /// Get and set the database version
+        /// </summary>
         public string Version {
             get
             {

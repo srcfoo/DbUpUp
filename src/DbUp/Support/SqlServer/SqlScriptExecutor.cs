@@ -99,31 +99,27 @@ namespace DbUp.Support.SqlServer
                 .Aggregate(contents, (current, additionalScriptPreprocessor) => additionalScriptPreprocessor.Process(current));
 
             var connectionManager = connectionManagerFactory();
-            var scriptStatements = connectionManager.SplitScriptIntoCommands(contents);
             var index = -1;
             try
             {
                 connectionManager.ExecuteCommandsWithManagedConnection(dbCommandFactory =>
                 {
-                    foreach (var statement in scriptStatements)
+                    index++;
+                    using (var command = dbCommandFactory())
                     {
-                        index++;
-                        using (var command = dbCommandFactory())
+                        command.CommandText = contents;
+                        if (ExecutionTimeoutSeconds != null)
+                            command.CommandTimeout = ExecutionTimeoutSeconds.Value;
+                        if (connectionManager.IsScriptOutputLogged)
                         {
-                            command.CommandText = statement;
-                            if (ExecutionTimeoutSeconds != null)
-                                command.CommandTimeout = ExecutionTimeoutSeconds.Value;
-                            if (connectionManager.IsScriptOutputLogged)
+                            using (var reader = command.ExecuteReader())
                             {
-                                using (var reader = command.ExecuteReader())
-                                {
-                                    Log(reader);
-                                }
+                                Log(reader);
                             }
-                            else
-                            {
-                                command.ExecuteNonQuery();
-                            }
+                        }
+                        else
+                        {
+                            command.ExecuteNonQuery();
                         }
                     }
                 });
