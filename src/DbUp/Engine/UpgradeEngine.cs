@@ -127,7 +127,7 @@ namespace DbUp.Engine
                     catch (Exception ex)
                     {
                         // I THINK THIS IS REDUNDANT SINCE SQL SERVER MIGHT ROLLBACK ON EXCEPTION BUT NEED TO TEST
-                        configuration.ScriptExecutor.Execute(new SqlScript("rollback.sql", "\r\nROLLBACK TRANSACTION\r\nGO\r\n"), configuration.Variables);
+                        //configuration.ScriptExecutor.Execute(new SqlScript("rollback.sql", "\r\nROLLBACK TRANSACTION\r\nGO\r\n"), configuration.Variables);
                     }
 
                     configuration.Log.WriteInformation("Upgrade successful");
