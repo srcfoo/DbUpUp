@@ -126,14 +126,15 @@ namespace DbUp.Engine
                     {
                         configuration.ScriptExecutor.Execute(combinedScript, configuration.Variables);
                         executed.Add(combinedScript);
+                        configuration.Log.WriteInformation("Upgrade successful");
                     }
                     catch (Exception ex)
                     {
                         // I THINK THIS IS REDUNDANT SINCE SQL SERVER MIGHT ROLLBACK ON EXCEPTION BUT NEED TO TEST
                         //configuration.ScriptExecutor.Execute(new SqlScript("rollback.sql", "\r\nROLLBACK TRANSACTION\r\nGO\r\n"), configuration.Variables);
+                        configuration.Log.WriteError("Upgrade failed: " + ex.Message);
                     }
 
-                    configuration.Log.WriteInformation("Upgrade successful");
                     return new DatabaseUpgradeResult(executed, true, null);
                 }
             }
