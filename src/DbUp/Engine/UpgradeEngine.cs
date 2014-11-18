@@ -105,7 +105,10 @@ namespace DbUp.Engine
                     combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease WITH MARK {0}\r\nGO\r\n",headVersion));
                     foreach (var script in scriptsToExecute)
                     {
-                        combinedContents.Append(script.Contents);
+                        if (script.IsValid())
+                        {
+                            combinedContents.Append("\r\n\r\n" + script.Contents);
+                        }
                     }
 
                     // If it's a dry run rollback the transaction at the end so nothing is committed to the database

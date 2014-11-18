@@ -1,6 +1,7 @@
 ﻿
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System;
 
 namespace DbUp.Engine
@@ -69,6 +70,20 @@ namespace DbUp.Engine
                 string c = resourceStreamReader.ReadToEnd();
                 return new SqlScript(scriptName, c);
             }
+        }
+
+        /// <summary>
+        /// Determines wether the script is a SQL script or not
+        /// </summary>
+        /// <param name="script">The script to evaluate</param>
+        /// <returns></returns>
+        public bool IsValid()
+        {
+            // Does the file end in .sql?
+            if(!Regex.IsMatch(this.Name, @".*\.(?i:sql)$")) {
+                return false;
+            }
+            return true;
         }
     }
 }
