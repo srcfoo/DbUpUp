@@ -92,14 +92,13 @@ namespace DbUp.Engine
         /// <param name="databaseVersionHash">The most recent git hash stored in the target database to be updated</param>
         /// <param name="repoVersionHash">The hash in the local repo that we want to compare the database hash to (typically HEAD)</param>
         /// <returns>List of files prefixed with relative paths to the local repo</returns>
-        public string[] GetMigrationFiles(string databaseVersionHash, string repoVersionHash)
+        public string[] GetScripts(string databaseVersionHash, string repoVersionHash)
         {
             // Get all files that have been updated since the database was last updated
-            // (M)odified, (A)dded, (C)opied, (R)named (Renamed doesn't seem to do anything in testing but is here anyway)
+            // (M)odified, (A)dded, (C)opied, (R)named
+            // (Renamed doesn't seem to do anything in testing but is here for consistency and claritys since -CM seem to catch renamed files)
             var gitDiff = string.Format("diff --name-only --diff-filter=MACR {0}..{1}", databaseVersionHash, repoVersionHash);
-            var cmdOutput = ExecuteCommand(gitDiff);
-            //return cmdOutput.Split(new string[] { "\r\n" }, StringSplitOptions.None);
-            return cmdOutput.Split('\n');
+            return this.ExecuteCommand(gitDiff).Split('\n');
         }
     }
 }

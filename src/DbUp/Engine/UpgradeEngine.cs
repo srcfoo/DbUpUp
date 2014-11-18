@@ -142,25 +142,19 @@ namespace DbUp.Engine
         }
 
         /// <summary>
-        /// Returns a list of scripts that will be executed when the upgrade is performed
+        /// Retrieve all the SQL scripts that need to be executed
         /// </summary>
-        /// <returns>The scripts to be executed</returns>
-        /*
-        public List<SqlScript> GetScriptsToExecute()
-        {
-            using (configuration.ConnectionManager.OperationStarting(configuration.Log, new List<SqlScript>()))
-            {
-                return GetScriptsToExecuteInsideOperation();
-            }
-        }
-        */
+        /// <param name="workingDir">The directory containing the scripts to be run on the database</param>
+        /// <param name="databaseVersionHash">The version hash the database was last upgraded to</param>
+        /// <param name="repoVersionHash">The version hash the database will be upgraded to</param>
+        /// <returns>List of SQL scripts including their names and contents</returns>
         private List<SqlScript> GetScriptsToExecuteInsideOperation(string workingDir, string databaseVersionHash, string repoVersionHash = "HEAD")
         {
             // Git repo must already be cloned into workspace
             try {
                 var aGit = new Git(workingDir);
                 aGit.UpdateLocalRepo();
-                return aGit.GetMigrationFiles(databaseVersionHash,repoVersionHash).Where(s => !String.IsNullOrEmpty(s)).Select(s => SqlScript.FromFile(s)).ToList();
+                return aGit.GetScripts(databaseVersionHash,repoVersionHash).Where(s => !String.IsNullOrEmpty(s)).Select(s => SqlScript.FromFile(s)).ToList();
             } catch (Exception ex) {
                 configuration.Log.WriteError("Git commands failed to run: \r\n{0}", ex.ToString());
                 return new List<SqlScript>();
