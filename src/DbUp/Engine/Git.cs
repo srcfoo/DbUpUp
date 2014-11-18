@@ -95,6 +95,7 @@ namespace DbUp.Engine
         public string[] GetMigrationFiles(string databaseVersionHash, string repoVersionHash)
         {
             // Get all files that have been updated since the database was last updated
+            // (M)odified, (A)dded, (C)opied, (R)named (Renamed doesn't seem to do anything in testing but is here anyway)
             var gitDiff = string.Format("diff --name-only --diff-filter=MACR {0}..{1}", databaseVersionHash, repoVersionHash);
             var cmdOutput = ExecuteCommand(gitDiff);
             //return cmdOutput.Split(new string[] { "\r\n" }, StringSplitOptions.None);
