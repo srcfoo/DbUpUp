@@ -5,10 +5,6 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbUp", "DbUp\DbUp.csproj", "{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{C6A39A77-AEF6-421D-8198-E15821B80F9D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApplication", "Samples\SampleApplication\SampleApplication.csproj", "{83042F56-9FAD-4827-B542-6873F93D7940}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Information", "Information", "{FA530374-E28B-419B-BCA2-82A0512774F2}"
 	ProjectSection(SolutionItems) = preProject
 		Information\SolutionInfo.cs = Information\SolutionInfo.cs
@@ -66,20 +62,6 @@ Global
 		{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}.Release|x86.ActiveCfg = Release|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Default|Any CPU.ActiveCfg = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Default|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Default|Mixed Platforms.Build.0 = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Default|x86.ActiveCfg = Debug|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{83042F56-9FAD-4827-B542-6873F93D7940}.Release|x86.ActiveCfg = Release|Any CPU
 		{C4499BDA-7ED5-4CB6-9B44-E835854D9246}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{C4499BDA-7ED5-4CB6-9B44-E835854D9246}.Debug|Any CPU.Build.0 = Debug|x86
 		{C4499BDA-7ED5-4CB6-9B44-E835854D9246}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
@@ -159,9 +141,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{83042F56-9FAD-4827-B542-6873F93D7940} = {C6A39A77-AEF6-421D-8198-E15821B80F9D}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = DbUp\DbUp.csproj
