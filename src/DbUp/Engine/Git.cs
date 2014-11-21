@@ -95,9 +95,9 @@ namespace DbUp.Engine
         public string[] GetScripts(string databaseVersionHash, string repoVersionHash)
         {
             // Get all files that have been updated since the database was last updated
-            // (M)odified, (A)dded, (C)opied, (R)named
+            // (M)odified, (A)dded, (C)opied, (R)enamed
             // (Renamed doesn't seem to do anything in testing but is here for consistency and claritys since -CM seem to catch renamed files)
-            var gitDiff = string.Format("diff --name-only --diff-filter=MACR {0}..{1}", databaseVersionHash, repoVersionHash);
+            var gitDiff = string.Format("diff -O diff-order-migrations-first --name-only --diff-filter=MACR {0}..{1}", databaseVersionHash, repoVersionHash);
             return this.ExecuteCommand(gitDiff).Split('\n');
         }
     }
