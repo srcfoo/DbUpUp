@@ -67,17 +67,19 @@ namespace DbUp.Engine
         /// </summary>
         public void UpdateLocalRepo()
         {
-            CheckoutMaster();
             RemoteUpdate();
-            PullChanges();          
+            CheckoutBranch();
         }
 
         /// <summary>
         /// Make sure the local repository is on the correct branch. Assumes master will be used.
         /// </summary>
-        private void CheckoutMaster()
+        private void CheckoutBranch()
         {
-            Console.WriteLine(this.ExecuteCommand("checkout master"));
+            // Checkout the desired branch
+            Console.WriteLine(this.ExecuteCommand("checkout " + branch));
+            // Update everything to match the remote branch exactly including removing untracked files if there are any
+            Console.WriteLine(this.ExecuteCommand("reset --hard " + remote + "/" + branch));
         }
 
         /// <summary>
@@ -85,7 +87,7 @@ namespace DbUp.Engine
         /// </summary>
         private void RemoteUpdate()
         {
-            Console.WriteLine(this.ExecuteCommand("remote update origin"));
+            Console.WriteLine(this.ExecuteCommand("remote update " + remote));
         }
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace DbUp.Engine
         /// </summary>
         private void PullChanges()
         {
-            Console.WriteLine(this.ExecuteCommand("pull origin"));
+            Console.WriteLine(this.ExecuteCommand("pull " + remote));
         }
 
         /// <summary>
@@ -102,7 +104,7 @@ namespace DbUp.Engine
         /// <returns>Git hash as a string</returns>
         public string HeadVersion()
         {
-            return this.ExecuteCommand("rev-parse HEAD");
+            return this.ExecuteCommand("rev-parse HEAD").Trim();
         }
 
         /// <summary>
