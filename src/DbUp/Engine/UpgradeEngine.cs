@@ -105,7 +105,7 @@ namespace DbUp.Engine
                     configuration.ScriptExecutor.VerifySchema();
 
                     StringBuilder combinedContents = new StringBuilder();
-                    combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease WITH MARK {0}\r\nGO\r\n",headVersion));
+                    combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease\r\nGO\r\n",headVersion));
                     foreach (var script in scriptsToExecute)
                     {
                         if (script.IsValid())
