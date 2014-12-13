@@ -71,13 +71,13 @@ namespace DbUp.Console
 
             if (dryrun)
             {
-                dbup.DryRun(databaseVersion.Version, headVersion, workingDir, printAll);
+                dbup.DryRun(databaseVersion.Version, headVersion, workingDir, printAll, connectionString);
                 return;
             }
 
             if (dbup.IsUpgradeRequired(databaseVersion.Version, workingDir))
             {
-                if (dbup.PerformUpgrade(databaseVersion.Version, headVersion, workingDir).Successful)
+                if (dbup.PerformUpgrade(databaseVersion.Version, headVersion, workingDir, connectionString).Successful)
                 {
                     // Set the new database version
                     databaseVersion.Version = headVersion;
