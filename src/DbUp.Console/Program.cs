@@ -81,8 +81,16 @@ namespace DbUp.Console
                 {
                     // Set the new database version
                     databaseVersion.Version = headVersion;
+                    System.Console.WriteLine("Database updated to " + headVersion);
                 }
             }
+            else
+            {
+                System.Console.WriteLine("\r\n\r\nDatabase already at newest version. Upgrade is not required.");
+            }
+
+            System.Console.WriteLine( "\r\n\r\nPress any key to continue.");
+            System.Console.ReadKey();
         }
 
         private static string BuildConnectionString(string server, string database, string username, string password)
