@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -15,11 +17,28 @@ namespace DbUp.Engine
         // Location of the git repository on the local machine
         private string workingDir = "";
         // git.exe should be on the user's path
-        private string gitExe = "git.exe";
+        private string gitExe = ""; //"git.exe";
+        // The branch you want to use
+        private string branch = ""; //"master";
+        // Name of the remote to use
+        private string remote = ""; //"origin";
 
         public Git(string workingDir)
         {
             this.workingDir = workingDir;
+
+            Hashtable config = ConfigurationManager.GetSection("git") as Hashtable;
+            try
+            {
+                gitExe = (string)config["gitExe"] ?? gitExe;
+                branch = (string)config["branch"] ?? branch;
+                remote = (string)config["remote"] ?? remote;
+            }
+            catch (KeyNotFoundException Ex)
+            {
+                Console.WriteLine("Missing git config parameter in app.config");
+                throw Ex;
+            }
         }
 
         ///<summary>
