@@ -5,6 +5,9 @@ using DbUp.Builder;
 using System.IO;
 using System.Diagnostics;
 using System.Text;
+using System.Data.SqlClient;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
 
 namespace DbUp.Engine
 {
@@ -38,7 +41,7 @@ namespace DbUp.Engine
         /// <param name="databaseVersionHash">The most recent database version</param>
         /// <param name="workingDir">The local clone of the migrations repository</param>
         /// <param name="printAll">Print the contents of each of the scripts that will be run</param>
-        public void DryRun(string databaseVersionHash, string headVersion, string workingDir, bool printAll)
+        public void DryRun(string databaseVersionHash, string headVersion, string workingDir, bool printAll, string connectionString)
         {
             if (printAll)
             {
@@ -49,7 +52,7 @@ namespace DbUp.Engine
                 GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => Console.WriteLine("{0}", i.Name));
             }
 
-            this.PerformUpgrade(databaseVersionHash, headVersion, workingDir, true);
+            PerformUpgrade(databaseVersionHash, headVersion, workingDir, connectionString, true);
         }
 
         /// <summary>
@@ -82,7 +85,7 @@ namespace DbUp.Engine
         /// <summary>
         /// Performs the database upgrade.
         /// </summary>
-        public DatabaseUpgradeResult PerformUpgrade(string databaseVersionHash, string headVersion, string workingDir, bool dryRun = false)
+        public DatabaseUpgradeResult PerformUpgrade(string databaseVersionHash, string headVersion, string workingDir, string connectionString, bool dryRun = false)
         {
             var executed = new List<SqlScript>();
             try
@@ -102,7 +105,7 @@ namespace DbUp.Engine
                     configuration.ScriptExecutor.VerifySchema();
 
                     StringBuilder combinedContents = new StringBuilder();
-                    combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease WITH MARK {0}\r\nGO\r\n",headVersion));
+                    combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease\r\nGO\r\n",headVersion));
                     foreach (var script in scriptsToExecute)
                     {
                         if (script.IsValid())
@@ -124,9 +127,13 @@ namespace DbUp.Engine
                     SqlScript combinedScript = new SqlScript(headVersion + ".sql", combinedContents.ToString());
                     try
                     {
-                        configuration.ScriptExecutor.Execute(combinedScript, configuration.Variables);
+                        using (SqlConnection conn = new SqlConnection(connectionString))
+                        {
+                            Server db = new Server(new ServerConnection(conn));
+                            db.ConnectionContext.ExecuteNonQuery(combinedContents.ToString());
+                        }
                         executed.Add(combinedScript);
-                        configuration.Log.WriteInformation("Upgrade successful");
+                        //configuration.Log.WriteInformation("Upgrade successful");
                     }
                     catch (Exception ex)
                     {

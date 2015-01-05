@@ -20,6 +20,7 @@ namespace DbUp.Console
             var dryrun = false;
             var printAll = false;
             var headVersion = "";
+            var promptUser = false;
 
             bool show_help = false;
 
@@ -34,6 +35,7 @@ namespace DbUp.Console
                 { "h|help",  "show this message and exit", v => show_help = v != null },
                 { "dr|dryrun",  "Return a list of files that would have been executed", dr => dryrun = dr != null },
                 { "pa|printAll", "Print the contents of the files returned in the dry run", pa => printAll = pa != null },
+                { "prompt|promptUser", "Prompt user before exiting", prompt => promptUser = prompt != null },
             };
 
             optionSet.Parse(args);
@@ -71,17 +73,29 @@ namespace DbUp.Console
 
             if (dryrun)
             {
-                dbup.DryRun(databaseVersion.Version, headVersion, workingDir, printAll);
-                return;
+                dbup.DryRun(databaseVersion.Version, headVersion, workingDir, printAll, connectionString);
+            }
+            else
+            {
+                if (dbup.IsUpgradeRequired(databaseVersion.Version, workingDir))
+                {
+                    if (dbup.PerformUpgrade(databaseVersion.Version, headVersion, workingDir, connectionString).Successful)
+                    {
+                        // Set the new database version
+                        databaseVersion.Version = headVersion;
+                        System.Console.WriteLine("Database updated to " + headVersion);
+                    }
+                }
+                else
+                {
+                    System.Console.WriteLine("\r\n\r\nDatabase already at newest version. Upgrade is not required.");
+                }
             }
 
-            if (dbup.IsUpgradeRequired(databaseVersion.Version, workingDir))
+            if (promptUser)
             {
-                if (dbup.PerformUpgrade(databaseVersion.Version, headVersion, workingDir).Successful)
-                {
-                    // Set the new database version
-                    databaseVersion.Version = headVersion;
-                }
+                System.Console.WriteLine("\r\n\r\nPress any key to continue.");
+                System.Console.ReadKey();
             }
         }
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -15,11 +17,28 @@ namespace DbUp.Engine
         // Location of the git repository on the local machine
         private string workingDir = "";
         // git.exe should be on the user's path
-        private string gitExe = "git.exe";
+        private string gitExe = ""; //"git.exe";
+        // The branch you want to use
+        private string branch = ""; //"master";
+        // Name of the remote to use
+        private string remote = ""; //"origin";
 
         public Git(string workingDir)
         {
             this.workingDir = workingDir;
+
+            Hashtable config = ConfigurationManager.GetSection("git") as Hashtable;
+            try
+            {
+                gitExe = (string)config["gitExe"] ?? gitExe;
+                branch = (string)config["branch"] ?? branch;
+                remote = (string)config["remote"] ?? remote;
+            }
+            catch (KeyNotFoundException Ex)
+            {
+                Console.WriteLine("Missing git config parameter in app.config");
+                throw Ex;
+            }
         }
 
         ///<summary>
@@ -48,17 +67,19 @@ namespace DbUp.Engine
         /// </summary>
         public void UpdateLocalRepo()
         {
-            CheckoutMaster();
             RemoteUpdate();
-            PullChanges();          
+            CheckoutBranch();
         }
 
         /// <summary>
         /// Make sure the local repository is on the correct branch. Assumes master will be used.
         /// </summary>
-        private void CheckoutMaster()
+        private void CheckoutBranch()
         {
-            Console.WriteLine(this.ExecuteCommand("checkout master"));
+            // Checkout the desired branch
+            Console.WriteLine(this.ExecuteCommand("checkout " + branch));
+            // Update everything to match the remote branch exactly including removing untracked files if there are any
+            Console.WriteLine(this.ExecuteCommand("reset --hard " + remote + "/" + branch));
         }
 
         /// <summary>
@@ -66,7 +87,7 @@ namespace DbUp.Engine
         /// </summary>
         private void RemoteUpdate()
         {
-            Console.WriteLine(this.ExecuteCommand("remote update origin"));
+            Console.WriteLine(this.ExecuteCommand("remote update " + remote));
         }
 
         /// <summary>
@@ -74,7 +95,7 @@ namespace DbUp.Engine
         /// </summary>
         private void PullChanges()
         {
-            Console.WriteLine(this.ExecuteCommand("pull origin"));
+            Console.WriteLine(this.ExecuteCommand("pull " + remote));
         }
 
         /// <summary>
@@ -83,7 +104,7 @@ namespace DbUp.Engine
         /// <returns>Git hash as a string</returns>
         public string HeadVersion()
         {
-            return this.ExecuteCommand("rev-parse HEAD");
+            return this.ExecuteCommand("rev-parse HEAD").Trim();
         }
 
         /// <summary>

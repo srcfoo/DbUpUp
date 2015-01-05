@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Shared.Management.Objects.for.SQL.Server.2012.SP1</id>
+    <version>11.0.3000.0</version>
+    <title>Shared Management Objects (SMO) for SQL Server 2012 SP1</title>
+    <authors>SoniCue</authors>
+    <owners>SoniCue</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Contains all SQL Server Managements Objects (SMO) that needs to be bundled for an application without the need of installing the Shared Managements Objects from SQL Server Feature Pack 2012 SP1.</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>SMO SQL Server Server Management Objects</tags>
+  </metadata>
+</package>

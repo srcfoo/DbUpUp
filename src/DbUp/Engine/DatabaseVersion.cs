@@ -20,7 +20,7 @@ namespace DbUp.Engine
         /// <param name="dbConn">The database connection string</param>
         public DatabaseVersion(string dbConn) {
             this.dbConn = dbConn;
-            this.getVersion();
+            getVersion();
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace DbUp.Engine
             set
             {
                 version = value;
-                this.setVersion(version);
+                setVersion(version);
             }
         }
 
@@ -44,7 +44,7 @@ namespace DbUp.Engine
         /// </summary>
         /// <returns>Most recent version hash from the database</returns>
         private string getVersion() {
-            using (SqlConnection conn = new SqlConnection(this.dbConn))
+            using (SqlConnection conn = new SqlConnection(dbConn))
             {
                 SqlCommand cmd = new SqlCommand(
                         "SELECT TOP 1 hash FROM SyncHistory.dbo.databaseVersion ORDER BY deployed DESC", conn
@@ -52,13 +52,13 @@ namespace DbUp.Engine
                 try
                 {
                     conn.Open();
-                    this.version = (string)cmd.ExecuteScalar();
+                    version = (string)cmd.ExecuteScalar();
                 } catch (Exception ex) {
                     Console.WriteLine("Could not retrieve the version from the database. Msg:");
                     Console.WriteLine(ex.Message);
                 }
             }
-            return this.version;
+            return version;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace DbUp.Engine
         /// <returns>True on success and false on failure</returns>
         private bool setVersion(string hash)
         {
-            using(SqlConnection conn = new SqlConnection(this.dbConn))
+            using(SqlConnection conn = new SqlConnection(dbConn))
             {
                 SqlCommand cmd = new SqlCommand(
                     "INSERT INTO SyncHistory.dbo.databaseVersion (hash,deployed) VALUES (@hash,GETDATE())", conn
