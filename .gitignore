@@ -79,3 +79,6 @@ build/TestResult.xml
 .DS_Store
 *.pidb
 *.orig
+
+# Ignore SlowCheetah transform files
+*.targets
