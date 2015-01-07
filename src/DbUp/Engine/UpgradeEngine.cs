@@ -105,7 +105,7 @@ namespace DbUp.Engine
                     configuration.ScriptExecutor.VerifySchema();
 
                     StringBuilder combinedContents = new StringBuilder();
-                    combinedContents.AppendLine(string.Format("BEGIN TRANSACTION EndeavorRelease\r\nGO\r\n",headVersion));
+                    combinedContents.AppendLine("SET XACT_ABORT ON\r\nGO\r\nBEGIN TRANSACTION EndeavorRelease\r\nGO\r\n");
                     foreach (var script in scriptsToExecute)
                     {
                         if (script.IsValid())
@@ -137,17 +137,23 @@ namespace DbUp.Engine
                     }
                     catch (Exception ex)
                     {
-                        // I THINK THIS IS REDUNDANT SINCE SQL SERVER MIGHT ROLLBACK ON EXCEPTION BUT NEED TO TEST
-                        //configuration.ScriptExecutor.Execute(new SqlScript("rollback.sql", "\r\nROLLBACK TRANSACTION\r\nGO\r\n"), configuration.Variables);
-                        configuration.Log.WriteError("Upgrade failed: " + ex.Message);
+                        // Just throw the error for now until we know whether the rollback will work
+                        throw ex;
                     }
-
                     return new DatabaseUpgradeResult(executed, true, null);
                 }
             }
             catch (Exception ex)
             {
-                configuration.Log.WriteError("Upgrade failed due to an unexpected exception:\r\n{0}", ex.ToString());
+                if (ex.InnerException != null)
+                {
+                    configuration.Log.WriteError("Upgrade failed: " + ex.InnerException.Message);
+
+                }
+                else
+                {
+                    configuration.Log.WriteError("Upgrade failed: " + ex.Message);
+                }
                 return new DatabaseUpgradeResult(executed, false, ex);
             }
         }
