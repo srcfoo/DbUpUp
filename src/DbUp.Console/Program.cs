@@ -21,6 +21,7 @@ namespace DbUp.Console
             var printAll = false;
             var headVersion = "";
             var promptUser = false;
+			var branch  = "";
 
             bool show_help = false;
 
@@ -36,6 +37,7 @@ namespace DbUp.Console
                 { "dr|dryrun",  "Return a list of files that would have been executed", dr => dryrun = dr != null },
                 { "pa|printAll", "Print the contents of the files returned in the dry run", pa => printAll = pa != null },
                 { "prompt|promptUser", "Prompt user before exiting", prompt => promptUser = prompt != null },
+                { "b|branch=", "Git branch to checkout and pull", b => branch = b }
             };
 
             optionSet.Parse(args);
@@ -58,8 +60,9 @@ namespace DbUp.Console
             }
 
             // Get the version hash of the database and repo@HEAD
+            branch = !String.IsNullOrEmpty(branch) ? branch : null;
             DatabaseVersion databaseVersion = new DatabaseVersion(connectionString);
-            Git aGit = new Git(workingDir);
+            Git aGit = new Git(workingDir, branch);
             aGit.UpdateLocalRepo();
             headVersion = aGit.HeadVersion();
 
@@ -69,7 +72,7 @@ namespace DbUp.Console
                 .SqlDatabase(connectionString)
                 .LogToConsole()
                 .WithScriptsFromFileSystem(directory)
-                .Build();
+                .Build(branch);
 
             if (dryrun)
             {

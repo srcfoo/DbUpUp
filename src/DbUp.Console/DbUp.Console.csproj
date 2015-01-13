@@ -150,17 +150,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\System.Data.SQLite.Core.1.0.94.0\lib\net40\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.EF6">
-      <HintPath>..\..\lib\System.Data.SQLite.EF6.1.0.94.0\lib\net40\System.Data.SQLite.EF6.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\System.Data.SQLite.Linq.1.0.94.1\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -187,38 +176,11 @@
   <ItemGroup>
     <Content Include="app.config">
       <SubType>Designer</SubType>
+      <TransformOnBuild>true</TransformOnBuild>
     </Content>
     <None Include="packages.config" />
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.Debug.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
-    </None>
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.Debug2.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
-    </None>
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.Pre.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
-    </None>
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.PS.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
-    </None>
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.Release.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
-    </None>
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.Run Debug.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
-    </None>
     <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.targets">
       <TransformOnBuild>true</TransformOnBuild>
-    </None>
-    <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.TMPS.targets">
-      <DependentUpon>SlowCheetah.Transforms.targets</DependentUpon>
-      <IsTransformFile>True</IsTransformFile>
     </None>
   </ItemGroup>
   <ItemGroup>
