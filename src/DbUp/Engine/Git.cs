@@ -23,7 +23,7 @@ namespace DbUp.Engine
         // Name of the remote to use
         private string remote = ""; //"origin";
 
-        public Git(string workingDir)
+        public Git(string workingDir, string branch)
         {
             this.workingDir = workingDir;
 
@@ -31,8 +31,8 @@ namespace DbUp.Engine
             try
             {
                 gitExe = (string)config["gitExe"] ?? gitExe;
-                branch = (string)config["branch"] ?? branch;
                 remote = (string)config["remote"] ?? remote;
+                this.branch = branch ?? (string)config["branch"] ?? this.branch;
             }
             catch (KeyNotFoundException Ex)
             {

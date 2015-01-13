@@ -17,14 +17,16 @@ namespace DbUp.Engine
     public class UpgradeEngine
     {
         private readonly UpgradeConfiguration configuration;
+        private readonly string branch;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpgradeEngine"/> class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        public UpgradeEngine(UpgradeConfiguration configuration)
+        public UpgradeEngine(UpgradeConfiguration configuration, string branch)
         {
             this.configuration = configuration;
+            this.branch = branch;
         }
 
         /// <summary>
@@ -169,7 +171,7 @@ namespace DbUp.Engine
         {
             // Git repo must already be cloned into workspace
             try {
-                var aGit = new Git(workingDir);
+                var aGit = new Git(workingDir, branch);
                 aGit.UpdateLocalRepo();
                 return aGit.GetScripts(databaseVersionHash,repoVersionHash).Where(s => !String.IsNullOrEmpty(s)).Select(s => SqlScript.FromFile(s)).ToList();
             } catch (Exception ex) {

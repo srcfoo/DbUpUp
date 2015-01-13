@@ -25,7 +25,7 @@ namespace DbUp.Builder
         /// Creates an UpgradeEngine based on this configuration.
         /// </summary>
         /// <returns></returns>
-        public UpgradeEngine Build()
+        public UpgradeEngine Build(string branch)
         {
             var config = new UpgradeConfiguration();
             foreach (var callback in callbacks)
@@ -35,7 +35,7 @@ namespace DbUp.Builder
 
             config.Validate();
             
-            return new UpgradeEngine(config);
+            return new UpgradeEngine(config, branch);
         }
     }
 }
