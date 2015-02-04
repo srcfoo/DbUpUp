@@ -1,4 +1,5 @@
 ﻿using DbUp.Builder;
+using DbUp.Engine.Output;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using System;
@@ -39,7 +40,7 @@ namespace DbUp.Engine {
 		/// <param name="printAll">Print the contents of each of the scripts that will be run</param>
 		public void DryRun(string databaseVersionHash, string headVersion, string workingDir, bool printAll, string connectionString) {
 			if (printAll) {
-				GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => configuration.Log.WriteInformation("{0}\r\n{1}\r\n\r\n", i.Name, i.Contents));
+				GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => configuration.Log.WriteInformation("--{0}\r\n{1}\r\n\r\n", i.Name, i.Contents));
 			} else {
 				GetScriptsToExecuteInsideOperation(workingDir, databaseVersionHash).ForEach(i => configuration.Log.WriteInformation("{0}", i.Name));
 			}
@@ -151,6 +152,15 @@ namespace DbUp.Engine {
 					configuration.Log.WriteError("Update failed due to an unexpected exception:\r\n{0}", ex.ToString());
 					return new DatabaseUpgradeResult(marked, false, ex);
 				}
+			}
+		}
+
+		/// <summary>
+		/// Returns the current logger
+		/// </summary>
+		public IUpgradeLog Log {
+			get {
+				return configuration.Log;
 			}
 		}
 	}

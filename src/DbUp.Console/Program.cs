@@ -1,8 +1,10 @@
 ﻿using DbUp.Engine;
+using DbUp.Engine.Output;
 using NDesk.Options;
 using System;
 using System.Data.SqlClient;
 using System.IO;
+using System.Text;
 
 namespace DbUp.Console {
 	class Program {
@@ -46,7 +48,6 @@ namespace DbUp.Console {
 			if (show_help) {
 				optionSet.WriteOptionDescriptions(System.Console.Out);
 				return;
-
 			}
 
 			Directory.SetCurrentDirectory(workingDir);
@@ -62,13 +63,13 @@ namespace DbUp.Console {
 			aGit.UpdateLocalRepo();
 			headVersion = aGit.HeadVersion();
 
-			LogRunDetails(databaseVersion.Version, headVersion, connectionString, workingDir);
-
 			var dbup = DeployChanges.To
 				.SqlDatabase(connectionString)
 				.LogToConsole()
 				.WithScriptsFromFileSystem(directory)
 				.Build(branch);
+
+			LogRunDetails(databaseVersion.Version, headVersion, connectionString, workingDir, dbup.Log);
 
 			if (dryrun) {
 				dbup.DryRun(databaseVersion.Version, headVersion, workingDir, printAll, connectionString);
@@ -77,10 +78,10 @@ namespace DbUp.Console {
 					if (dbup.PerformUpgrade(databaseVersion.Version, headVersion, workingDir, connectionString).Successful) {
 						// Set the new database version
 						databaseVersion.Version = headVersion;
-						System.Console.WriteLine("Database updated to {0}", headVersion);
+						dbup.Log.WriteInformation("Database updated to {0}", headVersion);
 					}
 				} else {
-					System.Console.WriteLine("\r\n\r\nDatabase already at newest version. Upgrade is not required.");
+					dbup.Log.WriteInformation("\r\n\r\nDatabase already at newest version. Upgrade is not required.");
 				}
 			}
 
@@ -105,13 +106,16 @@ namespace DbUp.Console {
 			return conn.ToString();
 		}
 
-		private static void LogRunDetails(string databaseVersion, string headVersion, string connectionString, string workingDir) {
-			System.Console.WriteLine("--------------------------------------------------------------------------------");
-			System.Console.WriteLine("Connection: {0}", connectionString);
-			System.Console.WriteLine("Working Directory: {0}", workingDir);
-			System.Console.WriteLine("DB Version: {0}", databaseVersion);
-			System.Console.WriteLine("HEAD Version: {0}", headVersion);
-			System.Console.WriteLine("--------------------------------------------------------------------------------");
+		private static void LogRunDetails(string databaseVersion, string headVersion, string connectionString, string workingDir, IUpgradeLog log) {
+			StringBuilder output = new StringBuilder();
+			output.AppendLine("--------------------------------------------------------------------------------");
+			output.AppendFormat("Connection: {0}\r\n", connectionString);
+			output.AppendFormat("Working Directory: {0}\r\n", workingDir);
+			output.AppendFormat("DB Version: {0}\r\n", databaseVersion);
+			output.AppendFormat("HEAD Version: {0}\r\n", headVersion);
+			output.AppendLine("--------------------------------------------------------------------------------");
+
+			log.WriteInformation(output.ToString());
 		}
 	}
 }
